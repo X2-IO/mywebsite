@@ -125,11 +125,18 @@ export function ContactForm() {
   }, []);
 
   return (
-    <section id="contact" className="border-t border-white/[0.06] py-20 sm:py-28">
+    <section
+      id="contact"
+      className="border-t border-white/[0.06] py-20 sm:py-28"
+      aria-labelledby="contact-heading"
+    >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
-            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            <h2
+              id="contact-heading"
+              className="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+            >
               Kerro lyhyesti tavoitteistanne
             </h2>
             <p className="mt-4 text-lg text-zinc-400">
@@ -149,14 +156,18 @@ export function ContactForm() {
           </div>
 
           <form
+            id="contact-form"
             onSubmit={onSubmit}
             className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 sm:p-8"
             noValidate
+            aria-labelledby="contact-heading"
+            aria-busy={status === "sending"}
           >
             {serverMessage && status !== "success" && (
               <div
                 className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
                 role="alert"
+                aria-live="assertive"
               >
                 {serverMessage}
               </div>
@@ -166,23 +177,26 @@ export function ContactForm() {
               <div
                 className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
                 role="alert"
+                aria-live="assertive"
               >
                 {fieldErrors._form}
               </div>
             )}
 
             <div className="grid gap-5 sm:grid-cols-2">
-              <label className="sm:col-span-1">
+              <label className="sm:col-span-1" htmlFor="contact-name">
                 <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
                   Nimi
                 </span>
                 <input
+                  id="contact-name"
                   name="name"
                   autoComplete="name"
                   disabled={status === "sending"}
                   className={inputClass(Boolean(fieldErrors.name))}
                   placeholder="Matti Meikäläinen"
                   aria-invalid={Boolean(fieldErrors.name)}
+                  aria-required
                   aria-describedby={fieldErrors.name ? "err-name" : undefined}
                 />
                 {fieldErrors.name && (
@@ -191,18 +205,21 @@ export function ContactForm() {
                   </p>
                 )}
               </label>
-              <label className="sm:col-span-1">
+              <label className="sm:col-span-1" htmlFor="contact-email">
                 <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
                   Sähköposti
                 </span>
                 <input
+                  id="contact-email"
                   name="email"
                   type="email"
+                  inputMode="email"
                   autoComplete="email"
                   disabled={status === "sending"}
                   className={inputClass(Boolean(fieldErrors.email))}
                   placeholder="matti@yritys.fi"
                   aria-invalid={Boolean(fieldErrors.email)}
+                  aria-required
                   aria-describedby={fieldErrors.email ? "err-email" : undefined}
                 />
                 {fieldErrors.email && (
@@ -211,11 +228,12 @@ export function ContactForm() {
                   </p>
                 )}
               </label>
-              <label className="sm:col-span-2">
+              <label className="sm:col-span-2" htmlFor="contact-company">
                 <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
                   Yritys (valinnainen)
                 </span>
                 <input
+                  id="contact-company"
                   name="company"
                   autoComplete="organization"
                   disabled={status === "sending"}
@@ -232,17 +250,19 @@ export function ContactForm() {
                   </p>
                 )}
               </label>
-              <label className="sm:col-span-2">
+              <label className="sm:col-span-2" htmlFor="contact-message">
                 <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
                   Viesti
                 </span>
                 <textarea
+                  id="contact-message"
                   name="message"
                   rows={5}
                   disabled={status === "sending"}
                   className={inputClass(Boolean(fieldErrors.message))}
                   placeholder="Kerro lyhyesti: tavoite, aikataulu, budjettikarkea."
                   aria-invalid={Boolean(fieldErrors.message)}
+                  aria-required
                   aria-describedby={
                     fieldErrors.message ? "err-message" : undefined
                   }
@@ -261,13 +281,14 @@ export function ContactForm() {
                   <p
                     className="text-sm font-medium text-sky-400"
                     role="status"
+                    aria-live="polite"
                   >
                     Kiitos — viesti vastaanotettu. Otamme yhteyttä pian.
                   </p>
                   <button
                     type="button"
                     onClick={resetForNewMessage}
-                    className="inline-flex h-11 min-w-[160px] items-center justify-center rounded-full border border-white/15 bg-white/[0.04] px-6 text-sm font-medium text-white transition-colors hover:bg-white/[0.08]"
+                    className="inline-flex h-11 min-h-[44px] min-w-[160px] items-center justify-center rounded-full border border-white/15 bg-white/[0.04] px-6 text-sm font-medium text-white transition-colors hover:bg-white/[0.08]"
                   >
                     Lähetä uusi viesti
                   </button>
@@ -277,7 +298,8 @@ export function ContactForm() {
                   <button
                     type="submit"
                     disabled={status === "sending"}
-                    className="inline-flex h-11 min-w-[160px] items-center justify-center rounded-full bg-white px-6 text-sm font-semibold text-zinc-950 transition-all enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                    aria-busy={status === "sending"}
+                    className="inline-flex h-11 min-h-[44px] min-w-[160px] items-center justify-center rounded-full bg-white px-6 text-sm font-semibold text-zinc-950 transition-all enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {status === "sending" ? (
                       <span className="flex items-center gap-2">

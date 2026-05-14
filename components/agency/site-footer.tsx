@@ -8,24 +8,32 @@ export function SiteFooter() {
         <div className="flex items-center gap-2 text-sm font-semibold text-white">
           <Image
             src="/pohjola-logo.png"
-            alt="PohjolaWeb"
+            alt=""
             width={32}
             height={32}
             className="h-8 w-8 object-contain"
+            loading="lazy"
+            sizes="32px"
           />
-          PohjolaWeb
+          <span>PohjolaWeb</span>
         </div>
         <p className="text-center text-sm text-zinc-500 sm:text-left">
           © {new Date().getFullYear()} PohjolaWeb. Kaikki oikeudet pidätetään.
         </p>
-        <div className="flex gap-6 text-sm text-zinc-400">
-          <Link href="#pricing" className="hover:text-white">
-            Hinnoittelu
-          </Link>
-          <Link href="#contact" className="hover:text-white">
-            Yhteys
-          </Link>
-        </div>
+        <nav aria-label="Alatunnisteen linkit">
+          <ul className="flex list-none flex-wrap justify-center gap-6 p-0 text-sm text-zinc-400">
+            <li>
+              <Link href="#pricing" className="min-h-[44px] inline-flex items-center hover:text-white">
+                Hinnoittelu
+              </Link>
+            </li>
+            <li>
+              <Link href="#contact" className="min-h-[44px] inline-flex items-center hover:text-white">
+                Yhteys
+              </Link>
+            </li>
+          </ul>
+        </nav>
       </div>
     </footer>
   );

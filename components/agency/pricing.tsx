@@ -45,10 +45,17 @@ const tiers = [
 
 export function Pricing() {
   return (
-    <section id="pricing" className="border-t border-white/[0.06] py-20 sm:py-28">
+    <section
+      id="pricing"
+      className="border-t border-white/[0.06] py-20 sm:py-28"
+      aria-labelledby="pricing-heading"
+    >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
-          <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          <h2
+            id="pricing-heading"
+            className="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+          >
             Hinnoittelu, joka skaalautuu
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-lg text-zinc-400">
@@ -58,9 +65,9 @@ export function Pricing() {
           <p className="mt-2 text-sm text-zinc-500">Hinnat sis. alv.</p>
         </div>
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
+        <ul className="mt-14 grid list-none gap-6 p-0 lg:grid-cols-3">
           {tiers.map((tier) => (
-            <div
+            <li
               key={tier.name}
               className={`relative flex flex-col rounded-2xl border p-8 transition-all duration-500 hover:-translate-y-0.5 ${
                 tier.featured
@@ -86,7 +93,7 @@ export function Pricing() {
                   <span className="text-sm text-zinc-500">alkaen</span>
                 )}
               </p>
-              <ul className="mt-8 flex flex-1 flex-col gap-3 text-sm text-zinc-300">
+              <ul className="mt-8 flex flex-1 list-none flex-col gap-3 p-0 text-sm text-zinc-300">
                 {tier.features.map((f) => (
                   <li key={f} className="flex gap-2">
                     <span
@@ -101,7 +108,7 @@ export function Pricing() {
               </ul>
               <Link
                 href="#contact"
-                className={`mt-8 inline-flex h-11 items-center justify-center rounded-full text-sm font-semibold transition-all ${
+                className={`mt-8 inline-flex h-11 min-h-[44px] items-center justify-center rounded-full text-sm font-semibold transition-all ${
                   tier.featured
                     ? "bg-white text-zinc-950 hover:scale-[1.02] active:scale-[0.98]"
                     : "border border-white/15 bg-transparent text-white hover:bg-white/5"
@@ -109,9 +116,9 @@ export function Pricing() {
               >
                 {tier.cta}
               </Link>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

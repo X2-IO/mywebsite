@@ -2,7 +2,10 @@ import Link from "next/link";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pt-24 pb-20 sm:pt-28 sm:pb-28 lg:pt-32 lg:pb-36">
+    <section
+      className="relative overflow-hidden pt-24 pb-20 sm:pt-28 sm:pb-28 lg:pt-32 lg:pb-36"
+      aria-labelledby="hero-heading"
+    >
       <div
         className="pointer-events-none absolute -left-40 top-20 h-[420px] w-[420px] rounded-full bg-sky-500/20 blur-[100px] animate-float-blob"
         aria-hidden
@@ -21,7 +24,10 @@ export function Hero() {
         <p className="animate-fade-up mb-6 text-center text-xs font-medium uppercase tracking-[0.2em] text-sky-400/90 sm:text-left">
           Suomalainen web-toimisto
         </p>
-        <h1 className="animate-fade-up animation-delay-100 mx-auto max-w-4xl text-center text-[2.5rem] font-semibold leading-[1.08] tracking-tight text-white sm:text-left sm:text-5xl lg:text-6xl">
+        <h1
+          id="hero-heading"
+          className="animate-fade-up animation-delay-100 mx-auto max-w-4xl text-center text-[2.5rem] font-semibold leading-[1.08] tracking-tight text-white sm:text-left sm:text-5xl lg:text-6xl"
+        >
           Verkkosivut, jotka{" "}
           <span className="bg-gradient-to-r from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent">
             tuntuvat oikeilta
@@ -36,19 +42,22 @@ export function Hero() {
         <div className="animate-fade-up animation-delay-300 mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:justify-start">
           <Link
             href="#contact"
-            className="inline-flex h-12 min-w-[200px] items-center justify-center rounded-full bg-white px-8 text-sm font-semibold text-zinc-950 shadow-[0_0_0_1px_rgba(255,255,255,0.08)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_50px_-20px_rgba(255,255,255,0.35)] active:scale-[0.98]"
+            className="inline-flex h-12 min-h-[44px] min-w-[200px] items-center justify-center rounded-full bg-white px-8 text-sm font-semibold text-zinc-950 shadow-[0_0_0_1px_rgba(255,255,255,0.08)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_50px_-20px_rgba(255,255,255,0.35)] active:scale-[0.98]"
           >
             Aloita projekti
           </Link>
           <Link
             href="#pricing"
-            className="inline-flex h-12 min-w-[200px] items-center justify-center rounded-full border border-white/15 bg-white/[0.03] px-8 text-sm font-medium text-zinc-200 backdrop-blur-sm transition-all duration-300 hover:border-white/25 hover:bg-white/[0.06]"
+            className="inline-flex h-12 min-h-[44px] min-w-[200px] items-center justify-center rounded-full border border-white/15 bg-white/[0.03] px-8 text-sm font-medium text-zinc-200 backdrop-blur-sm transition-all duration-300 hover:border-white/25 hover:bg-white/[0.06]"
           >
             Katso paketit
           </Link>
         </div>
 
-        <dl className="animate-fade-up animation-delay-400 mt-16 grid grid-cols-2 gap-6 border-t border-white/[0.06] pt-10 sm:grid-cols-4">
+        <dl
+          className="animate-fade-up animation-delay-400 mt-16 grid grid-cols-2 gap-6 border-t border-white/[0.06] pt-10 sm:grid-cols-4"
+          aria-label="Keskeiset tiedot"
+        >
           {[
             { k: "Toimitusaika", v: "4–8 vk" },
             { k: "Teknologia", v: "Next.js" },
