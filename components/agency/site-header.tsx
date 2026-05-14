@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -20,9 +21,14 @@ export function SiteHeader() {
           href="/"
           className="flex items-center gap-2 text-sm font-semibold tracking-tight text-white transition-opacity hover:opacity-90"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-400 to-cyan-600 text-[13px] font-bold text-zinc-950 shadow-[0_0_24px_-4px_rgba(56,189,248,0.6)]">
-            P
-          </span>
+          <Image
+            src="/pohjola-logo.png"
+            alt="PohjolaWeb"
+            width={32}
+            height={32}
+            className="h-8 w-8 object-contain"
+            priority
+          />
           <span className="hidden sm:inline">PohjolaWeb</span>
         </Link>
 
