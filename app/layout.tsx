@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AppProviders } from "@/components/providers/app-providers";
+import { SkipLink } from "@/components/skip-link";
 import { defaultDescription, siteName, siteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -34,6 +36,7 @@ export const metadata: Metadata = {
   keywords: [
     "web design",
     "web-toimisto",
+    "pohjolaweb",
     "Suomi",
     "Finland",
     "Next.js",
@@ -109,13 +112,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full bg-[#030306] text-zinc-100">
-        <a
-          href="#main-content"
-          className="skip-link focus:bg-white focus:text-zinc-950"
-        >
-          Siirry sisältöön
-        </a>
-        {children}
+        <AppProviders>
+          <SkipLink />
+          {children}
+        </AppProviders>
       </body>
     </html>
   );

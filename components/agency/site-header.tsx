@@ -1,76 +1,90 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useId, useState } from "react";
-
-const nav = [
-  { href: "#work", label: "Työt" },
-  { href: "#pricing", label: "Hinnoittelu" },
-  { href: "#faq", label: "UKK" },
-  { href: "#contact", label: "Yhteys" },
-];
+import { LocaleToggle } from "@/components/locale-toggle";
+import { useLocale } from "@/components/providers/locale-provider";
 
 export function SiteHeader() {
+  const { t } = useLocale();
   const [open, setOpen] = useState(false);
   const mobileNavId = useId();
+  const reduce = useReducedMotion();
+
+  const nav = [
+    { href: "#work", label: t.nav.work },
+    { href: "#pricing", label: t.nav.pricing },
+    { href: "#faq", label: t.nav.faq },
+    { href: "#contact", label: t.nav.contact },
+  ];
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.06] bg-[#030306]/75 backdrop-blur-xl backdrop-saturate-150">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-16 sm:px-6 lg:px-8">
+    <motion.header
+      initial={reduce ? false : { y: -8, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.06] bg-[#030306]/80 backdrop-blur-2xl"
+    >
+      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:h-[60px] sm:px-6">
         <Link
           href="/"
-          className="flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-lg text-sm font-semibold tracking-tight text-white transition-opacity hover:opacity-90 focus-visible:outline-offset-4"
-          aria-label="PohjolaWeb — etusivu"
+          className="flex min-h-[44px] items-center gap-2.5 text-sm font-medium tracking-tight text-white"
+          aria-label={t.nav.home}
         >
           <Image
             src="/pohjola-logo.png"
             alt=""
-            width={32}
-            height={32}
-            className="h-8 w-8 object-contain"
+            width={28}
+            height={28}
+            className="h-7 w-7 object-contain"
             priority
           />
-          <span className="hidden sm:inline">PohjolaWeb</span>
+          <span className="hidden sm:inline">{t.brand}</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Päävalikko">
+        <nav
+          className="hidden items-center gap-7 md:flex"
+          aria-label={t.nav.main}
+        >
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="min-h-[44px] py-2 text-sm leading-none text-zinc-400 transition-colors hover:text-white"
+              className="text-[13px] text-zinc-500 transition-colors hover:text-white"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <LocaleToggle />
           <Link
             href="#contact"
-            className="hidden min-h-[44px] items-center rounded-full bg-white px-4 py-2 text-sm font-medium text-zinc-950 transition-transform hover:scale-[1.02] active:scale-[0.98] sm:inline-flex"
+            className="hidden min-h-[36px] items-center rounded-full bg-white px-4 text-[13px] font-medium text-zinc-950 sm:inline-flex"
           >
-            Varaa keskustelu
+            {t.nav.cta}
           </Link>
           <button
             type="button"
-            className="flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1.5 rounded-lg border border-white/10 md:hidden"
+            className="flex min-h-[44px] min-w-[44px] flex-col items-center justify-center gap-1.5 rounded-lg border border-white/[0.08] md:hidden"
             aria-expanded={open}
             aria-controls={mobileNavId}
-            aria-label={open ? "Sulje valikko" : "Avaa valikko"}
+            aria-label={open ? t.nav.closeMenu : t.nav.openMenu}
             onClick={() => setOpen((v) => !v)}
           >
             <span
-              className={`h-0.5 w-5 rounded-full bg-zinc-200 transition-transform ${open ? "translate-y-2 rotate-45" : ""}`}
+              className={`h-px w-4 bg-zinc-300 transition-transform ${open ? "translate-y-2 rotate-45" : ""}`}
               aria-hidden
             />
             <span
-              className={`h-0.5 w-5 rounded-full bg-zinc-200 transition-opacity ${open ? "opacity-0" : ""}`}
+              className={`h-px w-4 bg-zinc-300 ${open ? "opacity-0" : ""}`}
               aria-hidden
             />
             <span
-              className={`h-0.5 w-5 rounded-full bg-zinc-200 transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`}
+              className={`h-px w-4 bg-zinc-300 transition-transform ${open ? "-translate-y-2 -rotate-45" : ""}`}
               aria-hidden
             />
           </button>
@@ -79,17 +93,16 @@ export function SiteHeader() {
 
       <div
         id={mobileNavId}
-        className={`border-t border-white/[0.06] bg-[#030306]/95 backdrop-blur-xl transition-all duration-300 ease-out md:hidden ${open ? "max-h-80 opacity-100" : "pointer-events-none max-h-0 overflow-hidden border-t-0 opacity-0"}`}
-        aria-hidden={!open}
+        className={`border-t border-white/[0.06] md:hidden ${open ? "block" : "hidden"}`}
         inert={!open}
       >
-        <nav className="flex flex-col gap-1 px-4 py-4" aria-label="Mobiilivalikko">
+        <nav className="flex flex-col px-4 py-3" aria-label={t.nav.mobile}>
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => setOpen(false)}
-              className="min-h-[44px] rounded-lg px-3 py-2.5 text-sm leading-snug text-zinc-300 hover:bg-white/5 hover:text-white"
+              className="min-h-[44px] py-3 text-sm text-zinc-400 hover:text-white"
             >
               {item.label}
             </Link>
@@ -97,12 +110,12 @@ export function SiteHeader() {
           <Link
             href="#contact"
             onClick={() => setOpen(false)}
-            className="mt-2 min-h-[44px] rounded-full bg-white py-2.5 text-center text-sm font-medium text-zinc-950"
+            className="mb-2 mt-1 min-h-[44px] rounded-full bg-white py-2.5 text-center text-sm font-medium text-zinc-950"
           >
-            Varaa keskustelu
+            {t.nav.cta}
           </Link>
         </nav>
       </div>
-    </header>
+    </motion.header>
   );
 }

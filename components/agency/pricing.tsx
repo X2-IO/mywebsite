@@ -1,125 +1,90 @@
-import Link from "next/link";
+"use client";
 
-const tiers = [
-  {
-    name: "Käynnistys",
-    price: "2 490",
-    desc: "Yksi selkeä laskeutumissivu tai kevyt sivusto.",
-    features: [
-      "Responsiivinen toteutus",
-      "Perus SEO",
-      "Yksi kierros muutoksia",
-      "Julkaisu + opastus",
-    ],
-    cta: "Kysy tarjous",
-    featured: false,
-  },
-  {
-    name: "Kasvu",
-    price: "5 900",
-    desc: "Monisivuinen sivusto, CMS ja analytiikka.",
-    features: [
-      "Suunnittelu + toteutus",
-      "Sisältömoduulit",
-      "Laajennettu SEO",
-      "Kaksi kierrosta muutoksia",
-      "30 pv tuki",
-    ],
-    cta: "Varaa kartoitus",
-    featured: true,
-  },
-  {
-    name: "Tuote",
-    price: "Custom",
-    desc: "Sovellusmaiset kokonaisuudet ja integraatiot.",
-    features: [
-      "Design system",
-      "Auth / maksut (tarvittaessa)",
-      "Suorituskyvyn budjetointi",
-      "Dedikoitu tiimi",
-    ],
-    cta: "Jutellaan",
-    featured: false,
-  },
-];
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { SectionReveal } from "@/components/motion/section-reveal";
+import { useLocale } from "@/components/providers/locale-provider";
 
 export function Pricing() {
+  const { t } = useLocale();
+
   return (
-    <section
+    <SectionReveal
       id="pricing"
-      className="border-t border-white/[0.06] py-20 sm:py-28"
+      className="border-b border-white/[0.06] py-24 sm:py-28"
       aria-labelledby="pricing-heading"
     >
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <div className="max-w-lg">
           <h2
             id="pricing-heading"
-            className="text-3xl font-semibold tracking-tight text-white sm:text-4xl"
+            className="text-2xl font-semibold tracking-tight text-white sm:text-3xl"
           >
-            Hinnoittelu, joka skaalautuu
+            {t.pricing.title}
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-zinc-400">
-            Läpinäkyvät paketit. Lopullinen hinta vahvistetaan kartoituksen
-            jälkeen — ei yllätyksiä.
-          </p>
-          <p className="mt-2 text-sm text-zinc-500">Hinnat sis. alv.</p>
+          <p className="mt-3 text-zinc-500">{t.pricing.subtitle}</p>
+          <p className="mt-1 text-xs text-zinc-600">{t.pricing.vat}</p>
         </div>
 
-        <ul className="mt-14 grid list-none gap-6 p-0 lg:grid-cols-3">
-          {tiers.map((tier) => (
-            <li
-              key={tier.name}
-              className={`relative flex flex-col rounded-2xl border p-8 transition-all duration-500 hover:-translate-y-0.5 ${
-                tier.featured
-                  ? "border-sky-500/40 bg-gradient-to-b from-sky-500/10 to-zinc-950/80 shadow-[0_0_0_1px_rgba(56,189,248,0.15),0_24px_80px_-24px_rgba(56,189,248,0.25)]"
-                  : "border-white/[0.08] bg-white/[0.02] hover:border-white/[0.14]"
-              }`}
-            >
-              {tier.featured && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-sky-500 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-950">
-                  Suosituin
-                </span>
-              )}
-              <h3 className="text-lg font-semibold text-white">{tier.name}</h3>
-              <p className="mt-2 text-sm text-zinc-400">{tier.desc}</p>
-              <p className="mt-6 flex items-baseline gap-1">
-                {tier.price !== "Custom" && (
-                  <span className="text-sm font-medium text-zinc-500">€</span>
-                )}
-                <span className="text-4xl font-semibold tracking-tight text-white">
-                  {tier.price}
-                </span>
-                {tier.price !== "Custom" && (
-                  <span className="text-sm text-zinc-500">alkaen</span>
-                )}
-              </p>
-              <ul className="mt-8 flex flex-1 list-none flex-col gap-3 p-0 text-sm text-zinc-300">
-                {tier.features.map((f) => (
-                  <li key={f} className="flex gap-2">
-                    <span
-                      className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sky-500/20 text-[10px] text-sky-300"
-                      aria-hidden
-                    >
-                      ✓
-                    </span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="#contact"
-                className={`mt-8 inline-flex h-11 min-h-[44px] items-center justify-center rounded-full text-sm font-semibold transition-all ${
-                  tier.featured
-                    ? "bg-white text-zinc-950 hover:scale-[1.02] active:scale-[0.98]"
-                    : "border border-white/15 bg-transparent text-white hover:bg-white/5"
+        <ul className="mt-14 grid list-none gap-4 p-0 lg:grid-cols-3">
+          {t.pricing.tiers.map((tier, i) => {
+            const featured = "featured" in tier && tier.featured;
+            return (
+              <motion.li
+                key={tier.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                className={`relative flex flex-col rounded-2xl border p-7 ${
+                  featured
+                    ? "border-white/20 bg-white/[0.04]"
+                    : "border-white/[0.06] bg-transparent"
                 }`}
               >
-                {tier.cta}
-              </Link>
-            </li>
-          ))}
+                {featured && (
+                  <span className="mb-4 inline-flex w-fit rounded-full border border-white/10 px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+                    {t.pricing.popular}
+                  </span>
+                )}
+                <h3 className="text-base font-medium text-white">{tier.name}</h3>
+                <p className="mt-2 text-sm text-zinc-500">{tier.desc}</p>
+                <p className="mt-6 flex items-baseline gap-1">
+                  {tier.price !== "Custom" && (
+                    <span className="text-sm text-zinc-600">€</span>
+                  )}
+                  <span className="text-3xl font-semibold tracking-tight text-white">
+                    {tier.price}
+                  </span>
+                  {tier.price !== "Custom" && (
+                    <span className="text-xs text-zinc-600">{t.pricing.from}</span>
+                  )}
+                </p>
+                <ul className="mt-8 flex flex-1 list-none flex-col gap-2.5 p-0 text-sm text-zinc-400">
+                  {tier.features.map((f) => (
+                    <li key={f} className="flex gap-2">
+                      <span className="text-zinc-600" aria-hidden>
+                        —
+                      </span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="#contact"
+                  className={`mt-8 inline-flex h-10 min-h-[40px] items-center justify-center rounded-full text-sm font-medium ${
+                    featured
+                      ? "bg-white text-zinc-950"
+                      : "border border-white/10 text-white hover:bg-white/5"
+                  }`}
+                >
+                  {tier.cta}
+                </Link>
+              </motion.li>
+            );
+          })}
         </ul>
       </div>
-    </section>
+    </SectionReveal>
   );
 }
