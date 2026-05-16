@@ -1,45 +1,36 @@
 "use client";
 
+import { SectionReveal } from "@/components/motion/section-reveal";
+import { useLocale } from "@/components/providers/locale-provider";
+import type { Dictionary } from "@/lib/i18n/translations";
 import { useCallback, useState } from "react";
 
 type Status = "idle" | "sending" | "success";
-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-type FieldErrors = Partial<Record<"name" | "email" | "message" | "company" | "_form", string>>;
+type FieldErrors = Partial<
+  Record<"name" | "email" | "message" | "company" | "_form", string>
+>;
 
-function validateClient(fd: FormData): { ok: true; payload: object } | { ok: false; errors: FieldErrors } {
+function validateClient(
+  fd: FormData,
+  e: Dictionary["contact"]["errors"],
+): { ok: true; payload: object } | { ok: false; errors: FieldErrors } {
   const name = String(fd.get("name") ?? "").trim();
   const email = String(fd.get("email") ?? "").trim();
   const message = String(fd.get("message") ?? "").trim();
   const company = String(fd.get("company") ?? "").trim();
-
   const errors: FieldErrors = {};
 
-  if (name.length < 2) {
-    errors.name = "Nimen tulee olla vähintään 2 merkkiä.";
-  }
-  if (name.length > 120) {
-    errors.name = "Nimi on liian pitkä.";
-  }
-  if (!email) {
-    errors.email = "Sähköposti on pakollinen.";
-  } else if (!EMAIL_RE.test(email)) {
-    errors.email = "Anna kelvollinen sähköpostiosoite.";
-  }
-  if (message.length < 10) {
-    errors.message = "Viestin tulee olla vähintään 10 merkkiä.";
-  }
-  if (message.length > 8000) {
-    errors.message = "Viesti on liian pitkä.";
-  }
-  if (company.length > 200) {
-    errors.company = "Yrityksen nimi on liian pitkä.";
-  }
+  if (name.length < 2) errors.name = e.nameMin;
+  if (name.length > 120) errors.name = e.nameMax;
+  if (!email) errors.email = e.emailRequired;
+  else if (!EMAIL_RE.test(email)) errors.email = e.emailInvalid;
+  if (message.length < 10) errors.message = e.messageMin;
+  if (message.length > 8000) errors.message = e.messageMax;
+  if (company.length > 200) errors.company = e.companyMax;
 
-  if (Object.keys(errors).length > 0) {
-    return { ok: false, errors };
-  }
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
 
   return {
     ok: true,
@@ -54,14 +45,16 @@ function validateClient(fd: FormData): { ok: true; payload: object } | { ok: fal
 
 function inputClass(hasError: boolean) {
   return [
-    "w-full rounded-xl border bg-zinc-950/80 px-4 py-3 text-sm text-white outline-none ring-sky-500/40 transition placeholder:text-zinc-600 focus:ring-2",
+    "w-full rounded-xl border bg-transparent px-4 py-3 text-sm text-white outline-none transition placeholder:text-zinc-600 focus:ring-1",
     hasError
-      ? "border-red-500/50 focus:border-red-500/60"
-      : "border-white/10 focus:border-sky-500/50",
+      ? "border-red-500/40 focus:border-red-500/50 focus:ring-red-500/20"
+      : "border-white/[0.08] focus:border-white/20 focus:ring-white/10",
   ].join(" ");
 }
 
 export function ContactForm() {
+  const { t } = useLocale();
+  const c = t.contact;
   const [status, setStatus] = useState<Status>("idle");
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [serverMessage, setServerMessage] = useState<string | null>(null);
@@ -72,235 +65,172 @@ export function ContactForm() {
     setServerMessage(null);
   }, []);
 
-  const onSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const fd = new FormData(form);
+  const onSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const fd = new FormData(form);
+      setServerMessage(null);
+      setFieldErrors({});
 
-    setServerMessage(null);
-    setFieldErrors({});
-
-    const local = validateClient(fd);
-    if (!local.ok) {
-      setFieldErrors(local.errors);
-      return;
-    }
-
-    setStatus("sending");
-
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(local.payload),
-      });
-
-      let data: { error?: string; errors?: FieldErrors; details?: string } = {};
-      try {
-        data = (await res.json()) as typeof data;
-      } catch {
-        /* empty */
-      }
-
-      if (!res.ok) {
-        setStatus("idle");
-        if (data.errors && typeof data.errors === "object") {
-          setFieldErrors(data.errors);
-        }
-        setServerMessage(
-          data.error ?? "Lähetys epäonnistui. Yritä uudelleen.",
-        );
+      const local = validateClient(fd, c.errors);
+      if (!local.ok) {
+        setFieldErrors(local.errors);
         return;
       }
 
-      setStatus("success");
-      form.reset();
-      setFieldErrors({});
-    } catch {
-      setStatus("idle");
-      setServerMessage(
-        "Yhteyttä ei saatu. Tarkista verkko ja yritä uudelleen.",
-      );
-    }
-  }, []);
+      setStatus("sending");
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(local.payload),
+        });
+        let data: { error?: string; errors?: FieldErrors } = {};
+        try {
+          data = (await res.json()) as typeof data;
+        } catch {
+          /* empty */
+        }
+        if (!res.ok) {
+          setStatus("idle");
+          if (data.errors) setFieldErrors(data.errors);
+          setServerMessage(data.error ?? c.errors.submit);
+          return;
+        }
+        setStatus("success");
+        form.reset();
+        setFieldErrors({});
+      } catch {
+        setStatus("idle");
+        setServerMessage(c.errors.network);
+      }
+    },
+    [c.errors],
+  );
 
   return (
-    <section id="contact" className="border-t border-white/[0.06] py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <SectionReveal
+      id="contact"
+      className="py-24 sm:py-28"
+      aria-labelledby="contact-heading"
+    >
+      <div className="mx-auto max-w-5xl px-4 sm:px-6">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
-            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Kerro lyhyesti tavoitteistanne
+            <h2
+              id="contact-heading"
+              className="text-2xl font-semibold tracking-tight text-white sm:text-3xl"
+            >
+              {c.title}
             </h2>
-            <p className="mt-4 text-lg text-zinc-400">
-              Vastaamme arkipäivisin 24 tunnin sisällä. Jos projekti on
-              kiireellinen, mainitse se viestissä — sovitamme aikataulun.
-            </p>
-            <ul className="mt-8 space-y-3 text-sm text-zinc-400">
-              <li className="flex gap-2">
-                <span className="text-sky-400">→</span>
-                Kartoitus 30 min — veloitukseton aloituskeskustelu
-              </li>
-              <li className="flex gap-2">
-                <span className="text-sky-400">→</span>
-                Helsinki & etä — sama laatu, missä tahansa
-              </li>
+            <p className="mt-3 text-zinc-500">{c.subtitle}</p>
+            <ul className="mt-8 space-y-2 text-sm text-zinc-500">
+              {c.bullets.map((b) => (
+                <li key={b}>{b}</li>
+              ))}
             </ul>
           </div>
 
           <form
             onSubmit={onSubmit}
-            className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 sm:p-8"
+            className="rounded-2xl border border-white/[0.06] p-6 sm:p-8"
             noValidate
+            aria-busy={status === "sending"}
           >
             {serverMessage && status !== "success" && (
-              <div
-                className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
-                role="alert"
-              >
+              <p className="mb-4 text-sm text-red-400" role="alert">
                 {serverMessage}
-              </div>
+              </p>
             )}
-
-            {fieldErrors._form && (
-              <div
-                className="mb-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200"
-                role="alert"
-              >
-                {fieldErrors._form}
-              </div>
-            )}
-
-            <div className="grid gap-5 sm:grid-cols-2">
-              <label className="sm:col-span-1">
-                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                  Nimi
-                </span>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="sm:col-span-1" htmlFor="contact-name">
+                <span className="mb-1 block text-xs text-zinc-600">{c.name}</span>
                 <input
+                  id="contact-name"
                   name="name"
-                  autoComplete="name"
                   disabled={status === "sending"}
                   className={inputClass(Boolean(fieldErrors.name))}
-                  placeholder="Matti Meikäläinen"
+                  placeholder={c.placeholders.name}
                   aria-invalid={Boolean(fieldErrors.name)}
-                  aria-describedby={fieldErrors.name ? "err-name" : undefined}
+                  aria-required
                 />
                 {fieldErrors.name && (
-                  <p id="err-name" className="mt-1.5 text-xs text-red-400">
-                    {fieldErrors.name}
-                  </p>
+                  <p className="mt-1 text-xs text-red-400">{fieldErrors.name}</p>
                 )}
               </label>
-              <label className="sm:col-span-1">
-                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                  Sähköposti
-                </span>
+              <label className="sm:col-span-1" htmlFor="contact-email">
+                <span className="mb-1 block text-xs text-zinc-600">{c.email}</span>
                 <input
+                  id="contact-email"
                   name="email"
                   type="email"
-                  autoComplete="email"
+                  inputMode="email"
                   disabled={status === "sending"}
                   className={inputClass(Boolean(fieldErrors.email))}
-                  placeholder="matti@yritys.fi"
+                  placeholder={c.placeholders.email}
                   aria-invalid={Boolean(fieldErrors.email)}
-                  aria-describedby={fieldErrors.email ? "err-email" : undefined}
+                  aria-required
                 />
                 {fieldErrors.email && (
-                  <p id="err-email" className="mt-1.5 text-xs text-red-400">
-                    {fieldErrors.email}
-                  </p>
+                  <p className="mt-1 text-xs text-red-400">{fieldErrors.email}</p>
                 )}
               </label>
-              <label className="sm:col-span-2">
-                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                  Yritys (valinnainen)
-                </span>
+              <label className="sm:col-span-2" htmlFor="contact-company">
+                <span className="mb-1 block text-xs text-zinc-600">{c.company}</span>
                 <input
+                  id="contact-company"
                   name="company"
-                  autoComplete="organization"
                   disabled={status === "sending"}
                   className={inputClass(Boolean(fieldErrors.company))}
-                  placeholder="Yritys Oy"
-                  aria-invalid={Boolean(fieldErrors.company)}
-                  aria-describedby={
-                    fieldErrors.company ? "err-company" : undefined
-                  }
+                  placeholder={c.placeholders.company}
                 />
-                {fieldErrors.company && (
-                  <p id="err-company" className="mt-1.5 text-xs text-red-400">
-                    {fieldErrors.company}
-                  </p>
-                )}
               </label>
-              <label className="sm:col-span-2">
-                <span className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-zinc-500">
-                  Viesti
-                </span>
+              <label className="sm:col-span-2" htmlFor="contact-message">
+                <span className="mb-1 block text-xs text-zinc-600">{c.message}</span>
                 <textarea
+                  id="contact-message"
                   name="message"
                   rows={5}
                   disabled={status === "sending"}
                   className={inputClass(Boolean(fieldErrors.message))}
-                  placeholder="Kerro lyhyesti: tavoite, aikataulu, budjettikarkea."
+                  placeholder={c.placeholders.message}
                   aria-invalid={Boolean(fieldErrors.message)}
-                  aria-describedby={
-                    fieldErrors.message ? "err-message" : undefined
-                  }
+                  aria-required
                 />
                 {fieldErrors.message && (
-                  <p id="err-message" className="mt-1.5 text-xs text-red-400">
-                    {fieldErrors.message}
-                  </p>
+                  <p className="mt-1 text-xs text-red-400">{fieldErrors.message}</p>
                 )}
               </label>
             </div>
-
-            <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+            <div className="mt-6 flex flex-wrap items-center gap-3">
               {status === "success" ? (
                 <>
-                  <p
-                    className="text-sm font-medium text-sky-400"
-                    role="status"
-                  >
-                    Kiitos — viesti vastaanotettu. Otamme yhteyttä pian.
+                  <p className="text-sm text-zinc-300" role="status">
+                    {c.success}
                   </p>
                   <button
                     type="button"
                     onClick={resetForNewMessage}
-                    className="inline-flex h-11 min-w-[160px] items-center justify-center rounded-full border border-white/15 bg-white/[0.04] px-6 text-sm font-medium text-white transition-colors hover:bg-white/[0.08]"
+                    className="rounded-full border border-white/10 px-5 py-2 text-sm text-white hover:bg-white/5"
                   >
-                    Lähetä uusi viesti
+                    {c.newMessage}
                   </button>
                 </>
               ) : (
-                <>
-                  <button
-                    type="submit"
-                    disabled={status === "sending"}
-                    className="inline-flex h-11 min-w-[160px] items-center justify-center rounded-full bg-white px-6 text-sm font-semibold text-zinc-950 transition-all enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {status === "sending" ? (
-                      <span className="flex items-center gap-2">
-                        <span
-                          className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-400 border-t-zinc-950"
-                          aria-hidden
-                        />
-                        Lähetetään…
-                      </span>
-                    ) : (
-                      "Lähetä viesti"
-                    )}
-                  </button>
-                </>
+                <button
+                  type="submit"
+                  disabled={status === "sending"}
+                  className="inline-flex h-10 min-h-[40px] items-center justify-center rounded-full bg-white px-6 text-sm font-medium text-zinc-950 disabled:opacity-50"
+                >
+                  {status === "sending" ? c.sending : c.submit}
+                </button>
               )}
             </div>
-            <p className="mt-4 text-xs text-zinc-600">
-              Tiedot tallennetaan turvallisesti. Käsittelemme niitä vain
-              yhteydenottoasi varten.
-            </p>
+            <p className="mt-4 text-xs text-zinc-600">{c.privacy}</p>
           </form>
         </div>
       </div>
-    </section>
+    </SectionReveal>
   );
 }

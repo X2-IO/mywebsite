@@ -1,26 +1,44 @@
+"use client";
+
+import Image from "next/image";
 import Link from "next/link";
+import { useLocale } from "@/components/providers/locale-provider";
 
 export function SiteFooter() {
+  const { t } = useLocale();
+
   return (
-    <footer className="border-t border-white/[0.06] py-12">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-8 px-4 sm:flex-row sm:px-6 lg:px-8">
-        <div className="flex items-center gap-2 text-sm font-semibold text-white">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-400 to-cyan-600 text-[13px] font-bold text-zinc-950">
-            P
-          </span>
-          PohjolaWeb
+    <footer className="py-14">
+      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-8 px-4 sm:flex-row sm:px-6">
+        <div className="flex items-center gap-2.5 text-sm font-medium text-white">
+          <Image
+            src="/pohjola-logo.png"
+            alt=""
+            width={28}
+            height={28}
+            className="h-7 w-7 object-contain"
+            loading="lazy"
+            sizes="28px"
+          />
+          {t.brand}
         </div>
-        <p className="text-center text-sm text-zinc-500 sm:text-left">
-          © {new Date().getFullYear()} PohjolaWeb. Kaikki oikeudet pidätetään.
+        <p className="text-center text-xs text-zinc-600">
+          © {new Date().getFullYear()} {t.brand}. {t.footer.rights}
         </p>
-        <div className="flex gap-6 text-sm text-zinc-400">
-          <Link href="#pricing" className="hover:text-white">
-            Hinnoittelu
-          </Link>
-          <Link href="#contact" className="hover:text-white">
-            Yhteys
-          </Link>
-        </div>
+        <nav aria-label={t.footer.navLabel}>
+          <ul className="flex list-none gap-6 p-0 text-xs text-zinc-500">
+            <li>
+              <Link href="#pricing" className="hover:text-white">
+                {t.nav.pricing}
+              </Link>
+            </li>
+            <li>
+              <Link href="#contact" className="hover:text-white">
+                {t.nav.contact}
+              </Link>
+            </li>
+          </ul>
+        </nav>
       </div>
     </footer>
   );
