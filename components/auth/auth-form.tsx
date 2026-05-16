@@ -13,7 +13,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const { t } = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/admin";
+  const requestedNext = searchParams.get("next");
+  const next =
+    requestedNext &&
+    (requestedNext === "/admin" || requestedNext.startsWith("/admin/"))
+      ? requestedNext
+      : "/admin";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +43,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         setError(authError.message);
         return;
       }
-      router.push(next);
+      router.replace(next);
       router.refresh();
       return;
     }
@@ -55,7 +60,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
       setError(authError.message);
       return;
     }
-    router.push("/login?signup=success");
+    router.replace("/login?signup=success");
     router.refresh();
   }
 
@@ -80,6 +85,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
       {searchParams.get("error") === "forbidden" && (
         <p className="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-200">
           {t.admin.forbidden}
+        </p>
+      )}
+
+      {searchParams.get("signup") === "success" && (
+        <p className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+          {t.auth.signupSuccess}
         </p>
       )}
 

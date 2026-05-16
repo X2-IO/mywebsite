@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { siteName, siteUrl } from "@/lib/site";
+import { siteName } from "@/lib/site";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -14,7 +14,13 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       {
         src: "/icon.png",
-        sizes: "32x32",
+        sizes: "192x192",
+        type: "image/png",
+        purpose: "any",
+      },
+      {
+        src: "/apple-icon.png",
+        sizes: "180x180",
         type: "image/png",
         purpose: "any",
       },

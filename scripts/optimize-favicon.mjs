@@ -1,28 +1,46 @@
 import sharp from "sharp";
 import { resolve } from "node:path";
-import { writeFileSync, unlinkSync, existsSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 
 const root = resolve(import.meta.dirname, "..");
 const src = resolve(root, "public/pohjola-logo.png");
 const outPng = resolve(root, "app/icon.png");
+const outApplePng = resolve(root, "app/apple-icon.png");
 const outIco = resolve(root, "app/favicon.ico");
 
 const sizes = [16, 32, 48];
 
-const pngBuffers = await Promise.all(
-  sizes.map((size) =>
-    sharp(src)
-      .resize(size, size, {
-        fit: "contain",
-        background: { r: 3, g: 3, b: 6, alpha: 1 },
-      })
-      .ensureAlpha()
-      .png()
-      .toBuffer(),
-  ),
-);
+const background = { r: 3, g: 3, b: 6, alpha: 1 };
 
-await sharp(pngBuffers[1]).png().toFile(outPng);
+async function createIconPng(size) {
+  const logoSize = Math.round(size * 0.72);
+  const mark = await sharp(src)
+    .trim({ background: "#000000", threshold: 24 })
+    .resize(logoSize, logoSize, {
+      fit: "contain",
+      background: { ...background, alpha: 0 },
+    })
+    .ensureAlpha()
+    .png()
+    .toBuffer();
+
+  return sharp({
+    create: {
+      width: size,
+      height: size,
+      channels: 4,
+      background,
+    },
+  })
+    .composite([{ input: mark, gravity: "center" }])
+    .png()
+    .toBuffer();
+}
+
+const pngBuffers = await Promise.all(sizes.map(createIconPng));
+
+await sharp(await createIconPng(192)).png().toFile(outPng);
+await sharp(await createIconPng(180)).png().toFile(outApplePng);
 
 const icoHeader = Buffer.alloc(6);
 icoHeader.writeUInt16LE(0, 0);
@@ -48,4 +66,4 @@ for (let i = 0; i < sizes.length; i++) {
 }
 
 writeFileSync(outIco, Buffer.concat([icoHeader, ...entries, ...imageData]));
-console.log("Favicon optimized:", outIco, outPng);
+console.log("Favicon optimized:", outIco, outPng, outApplePng);

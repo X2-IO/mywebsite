@@ -24,21 +24,21 @@ export function SiteHeader() {
     <motion.header
       initial={reduce ? false : { y: -8, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] as const }}
       className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.06] bg-[#030306]/80 backdrop-blur-2xl"
     >
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:h-[60px] sm:px-6">
+      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:h-[68px] sm:px-6">
         <Link
           href="/"
-          className="flex min-h-[44px] items-center gap-2.5 text-sm font-medium tracking-tight text-white"
+          className="flex min-h-[48px] items-center gap-3 text-sm font-medium tracking-tight text-white"
           aria-label={t.nav.home}
         >
           <Image
             src="/pohjola-logo.png"
             alt=""
-            width={28}
-            height={28}
-            className="h-7 w-7 object-contain"
+            width={40}
+            height={40}
+            className="h-9 w-9 object-contain sm:h-10 sm:w-10"
             priority
           />
           <span className="hidden sm:inline">{t.brand}</span>

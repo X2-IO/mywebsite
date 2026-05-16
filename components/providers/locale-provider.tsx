@@ -30,11 +30,15 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) as Locale | null;
-    if (stored === "fi" || stored === "en") {
-      setLocaleState(stored);
-    }
-    setMounted(true);
+    const id = window.setTimeout(() => {
+      const stored = localStorage.getItem(STORAGE_KEY) as Locale | null;
+      if (stored === "fi" || stored === "en") {
+        setLocaleState(stored);
+      }
+      setMounted(true);
+    }, 0);
+
+    return () => window.clearTimeout(id);
   }, []);
 
   useEffect(() => {

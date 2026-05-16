@@ -84,6 +84,11 @@ export const metadata: Metadata = {
     description: defaultDescription,
     images: [ogImage],
   },
+  icons: {
+    icon: [{ url: "/favicon.ico", sizes: "any" }],
+    shortcut: ["/favicon.ico"],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   formatDetection: {
     telephone: false,
     email: false,

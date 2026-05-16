@@ -41,7 +41,11 @@ export function ContactsDashboard() {
   }, [t]);
 
   useEffect(() => {
-    load();
+    const id = window.setTimeout(() => {
+      void load();
+    }, 0);
+
+    return () => window.clearTimeout(id);
   }, [load]);
 
   async function markRead(id: string) {
