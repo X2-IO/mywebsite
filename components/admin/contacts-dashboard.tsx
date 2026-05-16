@@ -11,7 +11,6 @@ export type ContactRow = {
   name: string;
   email: string;
   message: string;
-  read: boolean | null;
   created_at: string;
 };
 
@@ -47,17 +46,6 @@ export function ContactsDashboard() {
 
     return () => window.clearTimeout(id);
   }, [load]);
-
-  async function markRead(id: string) {
-    await fetch(`/api/admin/contacts/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ read: true }),
-    });
-    setContacts((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, read: true } : c)),
-    );
-  }
 
   async function remove(id: string) {
     if (!confirm(t.admin.deleteConfirm)) return;
@@ -134,10 +122,7 @@ export function ContactsDashboard() {
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
               {contacts.map((row) => (
-                <tr
-                  key={row.id}
-                  className={row.read ? "text-zinc-500" : "text-zinc-200"}
-                >
+                <tr key={row.id} className="text-zinc-200">
                   <td className="px-4 py-3 font-medium">{row.name}</td>
                   <td className="px-4 py-3">
                     <a
@@ -155,15 +140,6 @@ export function ContactsDashboard() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-2">
-                      {!row.read && (
-                        <button
-                          type="button"
-                          onClick={() => markRead(row.id)}
-                          className="rounded-full border border-white/10 px-3 py-1 text-xs hover:bg-white/5"
-                        >
-                          {t.admin.markRead}
-                        </button>
-                      )}
                       <button
                         type="button"
                         onClick={() => remove(row.id)}

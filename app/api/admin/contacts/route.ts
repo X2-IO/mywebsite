@@ -17,7 +17,7 @@ export async function GET() {
     const admin = createAdminClient();
     const { data, error } = await admin
       .from("contacts")
-      .select("id, name, email, message, read, created_at")
+      .select("id, name, email, message, created_at")
       .order("created_at", { ascending: false });
 
     if (error) {

@@ -5,7 +5,6 @@ create table if not exists public.contacts (
   name text not null,
   email text not null,
   message text not null,
-  read boolean not null default false,
   created_at timestamptz not null default now()
 );
 

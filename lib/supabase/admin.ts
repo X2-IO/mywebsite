@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/database.types";
 
 /** Server-only client that bypasses RLS for admin operations after auth check. */
 export function createAdminClient() {
@@ -7,7 +8,7 @@ export function createAdminClient() {
   if (!key) {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set");
   }
-  return createClient(url, key, {
+  return createClient<Database>(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
